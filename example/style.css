@@ -1,0 +1,49 @@
+body{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    font-size: 14px;
+    font-family: Helvetica, Arial, sans-serif;
+
+    color: #111;
+    background: linear-gradient(270deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+
+
+}
+h1{
+    line-height: 30px;
+}
+.flex-row{
+    display: flex;
+    flex-direction: row;
+}
+.red{
+    color: red;
+}
+.blue{
+    color: blue;
+}
+.green{
+    color: green;
+}
+#app{
+    margin-top: 20px;
+    width: 800px;
+    min-height: 600px;
+    padding: 20px 40px ;
+    background: #fff;
+    border-radius: 5px;
+}
+@keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}

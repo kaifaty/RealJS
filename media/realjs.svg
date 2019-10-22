@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="200px" height="119px" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 235.74 140.384"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .fil1 {fill:url(#id0)}
+    .fil2 {fill:url(#id1)}
+    .fil0 {fill:url(#id2)}
+   ]]>
+  </style>
+  <linearGradient id="id0" gradientUnits="userSpaceOnUse" x1="53.9589" y1="24.5407" x2="124.562" y2="125.373">
+   <stop offset="0" style="stop-color:#228BBF"/>
+   <stop offset="0.470588" style="stop-color:#289FDB"/>
+   <stop offset="1" style="stop-color:#2193CD"/>
+  </linearGradient>
+  <linearGradient id="id1" gradientUnits="userSpaceOnUse" xlink:href="#id0" x1="126.311" y1="28.6231" x2="177.064" y2="101.106">
+  </linearGradient>
+  <radialGradient id="id2" gradientUnits="userSpaceOnUse" cx="243.636" cy="-23.6884" r="37.1918" fx="243.636" fy="-23.6884">
+   <stop offset="0" style="stop-color:#B6DCF3"/>
+   <stop offset="1" style="stop-color:#217AA6"/>
+  </radialGradient>
+ </defs>
+ <g id="Layer_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_498977976">
+   <circle id="_495212552" class="fil0" cx="196.259" cy="39.4807" r="39.4807"/>
+   <path id="_498599256" class="fil1" d="M-0 28.6094c29.1814,-20.694 58.4411,-8.83037 77.2448,7.4382 18.8037,16.2686 21.6242,33.1616 36.6198,57.2184 14.9956,24.0568 42.9365,23.6135 64.6566,30.3256 -9.25018,7.39063 -22.5325,18.4066 -49.2077,16.5935 -26.6752,-1.81306 -49.84,-18.3898 -60.6515,-42.1985 -10.8116,-23.8087 -26.1297,-61.9388 -68.662,-69.3773z"/>
+   <path id="_498600552" class="fil2" d="M222.866 86.1135c-32.1476,16.2664 -55.7868,1.37 -71.6661,-9.87003 -15.8793,-11.24 -25.1963,-32.6172 -37.8255,-41.5027 -17.8759,-13.1585 -32.8642,-12.2008 -31.7164,-11.3287 4.65739,3.53853 13.5489,11.3573 21.3685,22.6471 9.67999,13.976 16.5846,32.6161 24.2847,40.9842 9.92869,10.7894 29.4163,21.1038 47.0621,20.8849 17.6459,-0.218962 42.0303,-3.88373 48.4927,-21.8148z"/>
+  </g>
+ </g>
+</svg>
