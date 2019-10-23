@@ -1,5 +1,5 @@
 # Real JS
-#####Micro framework for comfortable working with javascript
+##### Micro framework for comfortable working with javascript
 
 - No Virtual DOM
 - Vanila JS
@@ -12,7 +12,7 @@ The goal of modern JS frameworks is to simplify the life of frontend developers 
 
 RealJS updates only the data that you specify to update. only 4 methods are provided - updateNode, updateAllNodes, updateArrayNode, updateAllArrayNodes.
 
-###Getting started
+### Getting started
 1. Simple text
      ```
        <div id="app">
