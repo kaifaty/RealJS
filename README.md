@@ -1,6 +1,8 @@
 # Real JS
 ##### Micro framework for comfortable working with javascript
 
+##### [performance](https://kaifaty.github.io/RealJS/example/performance.html)
+
 - No Virtual DOM
 - Vanila JS
 - 2.1kb gzipped
