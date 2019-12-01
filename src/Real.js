@@ -1,4 +1,3 @@
-
 class Real{
     constructor(node, data){
         this._initCss();
@@ -7,18 +6,17 @@ class Real{
         this.arraynodes2update = {};
         this.nodes2update = {};
         this.scanAppNode(this.node);
-        this.updateAllNodes();
-        this.updateAllArrayNodes();
+        if(data){
+            this.updateAllNodes();
+            this.updateAllArrayNodes();
+        }
     }
-
     _initCss(){
         let style = document.createElement("style");
         style.type = 'text/css';
         style.innerHTML = '.d-none { display: none !important; }';
         document.getElementsByTagName('head')[0].appendChild(style);
-
     }
-
     scanAppNode(node){
         let append2nodes = (child, entries) => {
             for(let i = 0; i < entries.length; i ++){
@@ -34,9 +32,9 @@ class Real{
         };
         this.scanTree(node, (child) => {
             if (child.nodeName === "#text") {
-                append2nodes(child, getEntries(child.data));
+                append2nodes(child, this._getEntries(child.data));
             }
-            else if (child.nodeName !== "#text" && child.dataset.array) {
+            else if (child.nodeName !== "#text" && child.dataset && child.dataset.array) {
                 child.classList.add("d-none");
 
                 let arrName = child.dataset.array;
@@ -48,10 +46,10 @@ class Real{
                 }
                 return false;
             }
-            else if(child.attributes.length > 0){
+            else if(child.attributes && child.attributes.length > 0){
                 for(let i = 0; i < child.attributes.length; i++){
-                    append2nodes(child, getEntries(child.attributes[i].name));
-                    append2nodes(child, getEntries(child.attributes[i].value));
+                    append2nodes(child, this._getEntries(child.attributes[i].name));
+                    append2nodes(child, this._getEntries(child.attributes[i].value));
                 }
             }
             return true;
@@ -72,18 +70,29 @@ class Real{
                 originStack.splice(i, 1);
             }
 
-            for(let j = 0; j < item.childNodes.length; j++){
-                if(item.childNodes.length){
-                    if(callback && !callback(item.childNodes[j], origin ? oriItem.childNodes[j] : false)){
-                        continue;
-                    }
-                    stack.push(item.childNodes[j]);
-                    if(origin){
-                        originStack.push(oriItem.childNodes[j]);
+            if(item.childNodes){
+                for(let j = 0; j < item.childNodes.length; j++){
+                    if(item.childNodes.length){
+                        if(callback && !callback(item.childNodes[j], origin && oriItem ? oriItem.childNodes[j] : false)){
+                            continue;
+                        }
+                        stack.push(item.childNodes[j]);
+                        if(origin && oriItem){
+                            originStack.push(oriItem.childNodes[j]);
+                        }
                     }
                 }
             }
+
             i--;
+        }
+    }
+
+    updateAllNodes(){
+        for(let entry in this.nodes2update){
+            if(this.nodes2update.hasOwnProperty(entry)){
+                this.updateNode(entry);
+            }
         }
     }
 
@@ -91,80 +100,94 @@ class Real{
         if(origin && origin.nodeType === 3){
             let rawtext = origin.data;
             if(rawtext){
-                let text = format(rawtext, data, this.data, j);
-                if(/(<br>|<b>|<i>)/.test(text)){
+                let text = this._format(rawtext, data, this.data, j);
+                if(/(<br|<b|<i|<a|<p)/.test(text)){
                     if(this.nodes2update[entry]){
                         if(node.nodeType === 3 && entry && this.nodes2update[entry]){
                             this.nodes2update[entry][j].node = node.parentNode;
                         }
-                        this.nodes2update[entry][j].node.innerHTML = text;
+                        if(this.nodes2update[entry][j].node.innerHTML !== text){
+                            this.nodes2update[entry][j].node.innerHTML = text;
+                        }
                     }
                     else{
-                        node.parentNode.innerHTML = text;
+                        if(node.parentNode.innerHTML !== text){
+                            node.parentNode.innerHTML = text;
+                        }
                     }
-
                 }
                 else{
-                    node.textContent = text;
+                    if(node.data !== text){
+                        node.textContent = text;
+                    }
                 }
             }
         }
-        else if(origin && origin.nodeType !== 3) {
-            for (let i = 0; i < node.attributes.length; i++) {
-                let nodeName = node.attributes[i].name;
-                let node_attr = origin.attributes.getNamedItem(nodeName);
-                if(!node_attr){
-                    node.removeAttribute(nodeName);
-                    if(["disabled", "checked"].includes(nodeName)){
-                        node[nodeName] = false;
+        else if(origin && origin.nodeType === 1) {
+            /*for (let i = 0; i < node.attributes.length; i++) {
+                let attrName = node.attributes[i].name;
+                let nodeAttr = origin.attributes.getNamedItem(attrName);
+                if(!nodeAttr){
+                    log(nodeAttr, attrName, origin, node)
+                    node.removeAttribute(attrName);
+                    if(["disabled", "checked"].includes(attrName)){
+                        node[attrName] = false;
                     }
                 }
-            }
+            }*/
             for (let i = 0; i < origin.attributes.length; i++) {
                 let originName = origin.attributes[i].name;
                 let originValue = origin.attributes[i].value;
                 let node_attr = node.attributes.getNamedItem(originName) || {};
                 let currentName = node_attr.name;
-                let currentValue = node_attr.value;
-                let value2set = originValue;
-
                 if (originName === "class") {
-                    value2set = value2set.replace("d-none", "");
+                    originValue = originValue.replace("d-none", "");
                 }
 
-                value2set = format(value2set, data, this.data, j);
-                let name2set = format(originName, data, this.data, j);
-
-                if (currentName !== name2set && name2set) {
-                    node.setAttribute(name2set, value2set);
-                    if(["disabled", "checked"].includes(name2set)){
-                        node[name2set] = true;
+                if(~originName.indexOf("{")){
+                    let value2set = this._format(originValue, data, this.data, j);
+                    let name2set = this._format(originName, data, this.data, j);
+                    if(originName === '{disabled}' || originName === '{checked}' ){
+                        node[name2set] = name2set === "disabled" || name2set === "checked" || name2set === "selected";
+                    }
+                    else if(!value2set){
+                        node.removeAttribute(originName);
+                    }
+                    else if (currentName !== originName && originName) {
+                        node.setAttribute(name2set, value2set);
+                    }
+                    else if (currentName && !name2set) {
+                        node.removeAttribute(currentName);
                     }
                 }
-                else if (currentName && !name2set) {
-                    node.removeAttribute(currentName);
-                }
-                else if (currentName && name2set && currentName !== name2set) {
-                    node.setAttribute(name2set, value2set);
-                }
-                else if (currentValue !== value2set) {
-                    node_attr.value = value2set;
-                }
-            }
-            if (node.dataset.function) {
-                let func_str = node.dataset.function;
-                let args = func_str.match(/\(([a-zA-Z0-9_. ,]+)\)/);
-                if (args) {
-                    args = args[1].split(",");
-                    for (let i = 0; i < args.length; i++) {
-                        args[i] = args[i].trim();
-                        if (args[i] === "context") {
-                            args[i] = node;
+                else if(~originValue.indexOf("{")){
+                    let value2set = this._format(originValue, data, this.data, j);
+                    if(node_attr.value !== value2set){
+                        if(originName === 'value') {
+                            node.value = value2set;
                         }
-                    }
-                    let func = func_str.replace(/\(([a-zA-Z0-9_. ,]+)\)/, "");
-                    if (D[func]) {
-                        D[func](...args);
+                        else{
+                            node.setAttribute(originName, value2set);
+                        }
+                        if(originName === "data-value"){
+                            node.value = value2set;
+                        }
+                        if(originName === 'data-function'){
+                            let func_str = node.dataset.function;
+                            let [fName, fArgs] = func_str.split('(');
+                            fArgs = fArgs.replace(')', "");
+
+                            if (fArgs) {
+                                let args = fArgs.split(",");
+                                for (let i = 0; i < args.length; i++) {
+                                    args[i] = args[i].trim();
+                                }
+                                let func = this._getVar(this.data, fName);
+                                if (typeof func === 'function') {
+                                    func.apply(node, args);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -182,20 +205,15 @@ class Real{
         return items;
     }
 
-    updateAllNodes(){
-        for(let entry in this.nodes2update){
-            if(this.nodes2update.hasOwnProperty(entry)){
-                this.updateNode(entry);
-            }
-        }
-    }
-
     updateArrayNode(entry){
         let item = this.arraynodes2update[entry];
-        let data = getVar(this.data, entry);
+        let data = this._getVar(this.data, entry);
         if(data){
             if(typeof data === "function"){
                 data = data.apply(this.data);
+                if(!data){
+                    return false;
+                }
             }
             let update = (origin, node, data, j) =>{
                 this.scanTree(node, (child, originChild)=>{
@@ -250,92 +268,93 @@ class Real{
             }
         }
     }
-}
 
-function getVar(values, path) {
-    let currpath = values;
-    let varpath = path.trim().split(".");
-    for(let i = 0; i < varpath.length; i ++){
-        let curr = currpath[varpath[i]];
-        if(curr !== undefined){
-            currpath = curr;
+    _getVar(values, path) {
+        let currpath = values;
+        let varpath = path.trim().split(".");
+        for(let i = 0; i < varpath.length; i ++){
+            let curr = currpath[varpath[i]];
+            if(curr !== undefined){
+                currpath = curr;
+            }
+            else{
+                return undefined;
+            }
         }
-        else{
-            return undefined;
-        }
+        return currpath;
     }
-    return currpath;
-}
 
-function keypath(values, n, m) {
-    if (n.indexOf("[")) {
-        n = n.replace(/\[([a-zA-Z0-9_,.= ]+)\]/g, function (m, n) {
-            return getVar(values, n);
+    _keypath(values, n, m) {
+        if (n.indexOf("[")) {
+            n = n.replace(/\[([a-zA-Z0-9_,.= ]+)\]/g,  (m, n) => {
+                return this._getVar(values, n);
+            });
+        }
+        if (n.indexOf("(")) {
+            let isfunc = false;
+            let args = [];
+
+            let func = n.replace(/\(([a-zA-Z0-9_,.\[\]= ]+)\)/g, (m, n) => {
+                isfunc = true;
+                args = n.split(",");
+                return "";
+            });
+            if (isfunc) {
+                if (~func.indexOf(".")) {
+                    func = this._getVar(values, func);
+                }
+                else {
+                    func = values[func];
+                }
+                if (typeof func === "function") {
+                    return func(...args);
+                }
+                else {
+                    return m;
+                }
+
+
+            }
+        }
+
+        let variable = this._getVar(values, n);
+
+        if (variable === undefined) {
+            return m;
+        }
+        else {
+            return variable;
+        }
+
+    }
+
+    _format(str, values, globalVals, j) {
+        if(!values || !str)
+            return str;
+        str = str.replace("{i}", j);
+        str = str.replace("[i]", "." + j);
+
+        return str.replace(/\{([a-zA-Z0-9_.,=\[\])( ]+)\}/g,  (m, n) => {
+
+            let path = this._keypath(values, n, m);
+
+            if(path !== m){
+                return path;
+            }
+            else{
+                return this._keypath(globalVals, n, m);
+            }
         });
     }
-    if (n.indexOf("(")) {
-        let isfunc = false;
-        let args = [];
 
-        let func = n.replace(/\(([a-zA-Z0-9_,.\[\]= ]+)\)/g, (m, n) => {
-            isfunc = true;
-            args = n.split(",");
-            return "";
+    _getEntries(text) {
+        let entries = [];
+        text.replace(/\{([a-zA-Z0-9_.,=\[\])( ]+)\}/g, function (m, n) {
+            entries.push(n);
         });
-        if (isfunc) {
-            if (~func.indexOf(".")) {
-                func = getVar(values, func);
-            }
-            else {
-                func = values[func];
-            }
-            if (typeof func === "function") {
-                return func(...args);
-            }
-            else {
-                return m;
-            }
+        return entries;
 
-
-        }
     }
-
-    let variable = getVar(values, n);
-
-    if (variable === undefined) {
-        return m;
-    }
-    else {
-        return variable;
-    }
-
 }
 
-function format(str, values, globalVals, j) {
-    if(!values || !str)
-        return str;
-    str = str.replace("{i}", j);
-    str = str.replace("[i]", "." + j);
 
-    return str.replace(/\{([a-zA-Z0-9_.,=\[\])( ]+)\}/g, function (m, n) {
-
-        let path = keypath(values, n, m);
-
-        if(path !== m){
-            return path;
-        }
-        else{
-            let path = keypath(globalVals, n, m);
-            return path;
-        }
-    });
-}
-
-function getEntries(text) {
-    let entries = [];
-    text.replace(/\{([a-zA-Z0-9_.,=\[\])( ]+)\}/g, function (m, n) {
-        entries.push(n);
-    });
-    return entries;
-
-}

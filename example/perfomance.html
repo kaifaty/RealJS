@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .test-block{
+            position: relative;
+            display: block;
+            transform-origin: 0 0;
+            left: 50%;
+            margin-top: 400px;
+            width: 600px;
+            height: 600px;
+            transition: none;
+        }
+        .wrapper{
+            position: relative;
+        }
+        .hover{
+            background-color: #faaf0f !important;
+        }
+    </style>
+</head>
+<body id = 'app'>
+    <div class="test-block" style="{transform}">
+        <div data-array = "arr" style = "{style}" data-index = "{index}" id = "el-{index}" onmouseover="D.hover(this)" onmouseout="D.unhover()">{text}</div>
+    </div>
+</body>
+<script src="../src/Real.js"></script>
+<script>
+    let D = {
+        text: 0,
+        size: 1000,
+        hoveredIndex: false,
+
+        hover(el){
+            let index = parseInt(el.dataset.index);
+            this.unhover();
+            this.hoveredIndex = index;
+            window['el-' + index].classList.add("hover");
+            window['el-' + index].textContent = `*${window['el-' + index].textContent}*`
+        },
+
+        unhover(){
+            let hovered = document.getElementsByClassName('hover');
+            for(let i = 0; i < hovered.length; i++){
+                let item = hovered[i];
+                item.textContent = this.text;
+                item.classList.remove("hover");
+            }
+            this.hoveredIndex = false;
+        },
+
+        arr(){
+            return SierpinskiTriangle({ left: 0, top: 0, size: this.size }).map((item, i) =>{
+                return{
+                    text: this.hoveredIndex === i ? `*${this.text}*` : this.text,
+                    index: i,
+                    style: `top:${item.top}px;left:${item.left}px;position:absolute;background:#61dafb;font:normal 15px sans-serif;text-align:center;cursor:pointer;width:32.5px;height:32.5px;border-radius:16.25px;line-height:32.5px`,
+                }
+            });
+            function SierpinskiTriangle(id) {
+                const target = 25;
+                if (id.size < target) {
+                    return [{ left: id.left - target / 2, top: id.top - target / 2, size: target }];
+                }
+                const size = id.size / 2;
+                return [
+                    ...SierpinskiTriangle({ left: id.left, top: id.top - size / 2, size: size }),
+                    ...SierpinskiTriangle({ left: id.left - size, top: id.top + size / 2, size: size }),
+                    ...SierpinskiTriangle({ left: id.left + size, top: id.top + size / 2, size: size }),
+                ];
+            }
+        },
+
+        get transform(){
+            const t = (performance.now() / 1000) % 10;
+            const scale = 1 + (t > 5 ? 10 - t : t) / 10;
+            return `transform: scale(${(scale / 2.1)}, 0.7) translateZ(0.1px)`;
+        }
+
+    };
+    let real = new Real(window['app'], D);
+
+    setInterval(()=>{
+        D.text += 1;
+        if(D.text > 10){
+            D.text = 0;
+        }
+        real.updateArrayNode('arr');
+    }, 1000);
+
+    animate();
+
+    function animate() {
+        requestAnimationFrame(()=>{
+            real.updateNode('transform');
+            animate();
+        });
+    }
+
+</script>
+</html>
