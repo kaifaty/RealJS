@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RealJS - javascript micro framework</title>
+    <link rel="stylesheet" href="style.css">
+    <script src = "../src/Real.js"></script>
+</head>
+<body>
+    <section id = 'app'>
+        <div class="flex-row">
+            <img src = '{logo.src}' width="{logo.width}" style = "margin: {logo.margin}"><h1>{header}</h1>
+
+        </div>
+        <h4>{description}</h4>
+        <div>{nowTime}</div>
+        <div>Multiply 5*5 = {multy(5,5)}</div>
+        <ul>
+            <li data-array="specialFunctions" class="{class}">{text}</li>
+        </ul>
+    </section>
+</body>
+<script>
+    let data = {
+        logo: {
+            src: "../media/realjs.svg",
+            width: "50px",
+            margin: "0 10px 0 0 "
+        },
+        header: "RealJS - javascript micro framework",
+        description: "Simple example",
+        nowTime: new Date().toLocaleTimeString(),
+        specialFunctions: [
+            {text: "No Virtual DOM using", class: "red"},
+            {text: "Can change attributes", class: "blue"},
+            {text: "Multilang", class: "green"},
+        ],
+        multy(a, b){
+            return a * b;
+        }
+    };
+    let real = new Real(window['app'], data);
+
+    setInterval(()=>{
+        data.nowTime = new Date().toLocaleTimeString();
+        real.updateNode('nowTime');
+    }, 1000);
+
+</script>
+</html>
